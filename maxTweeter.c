@@ -64,11 +64,10 @@ void printTopTen(myMap data[], int curSize)
             break;
         }
         
-        printf("<");
+
         printf("%s",data[largestPos].name);
-        printf(">:<");
-        printf("%d",data[largestPos].frequency);
-        printf(">\n");
+        printf(":");
+        printf("%d\n",data[largestPos].frequency);
         data[largestPos].frequency = 0;
     }
     
