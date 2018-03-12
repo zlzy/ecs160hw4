@@ -16,7 +16,6 @@ typedef struct {
 } myMap;
 
 char *strtok_single (char * str, char const * delims)
-/*String token later will be called to split , */
 {
     static char  * src = NULL;
     char  *  p,  * ret = 0;
@@ -44,7 +43,6 @@ char *strtok_single (char * str, char const * delims)
 }
 
 void printTopTen(myMap data[], int curSize)
-/*print top ten tweeters, if there is less than 10 ppl, print them all*/
 {
     for(int i = 0; i < 10; i++)
     {
@@ -60,7 +58,7 @@ void printTopTen(myMap data[], int curSize)
         
         if(largestPos == -1)
         {
-            printf("Less than 10 users in the file\n");
+            printf("Less than 10 users in file\n");
             break;
         }
         
@@ -75,47 +73,44 @@ void printTopTen(myMap data[], int curSize)
     return;
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, const char * argv[]) {
     
     //Check that argc == 2
     if(argc!= 2)
     {
         printf("Invalid Input Format\n");
-        return 0;
+        return 1;
     }
 
     char const* const fileName =
     //"/Users/tianqizhu/Desktop/ecs160海外/maxTweeter/maxTweeter/cl-tweets-short1.csv";
     argv[1];
     
-
+    if((strlen(fileName)<= 4) ||(strlen(fileName) > 4 && strcmp(fileName + strlen(fileName) - 4, ".csv")))
+    {
+        printf("Invalid Input Format\n");
+        return 1;
+    }
     
     FILE* file = fopen(fileName, "r");
     
-//    if((strlen(argv[1])<= 4) ||(strlen(argv[1]) > 4 && strcmp(argv[1] + strlen(argv[1]) - 4, ".csv")))
-//    {
-//        printf("Invalid Input Format\n");
-//        return 0;
-//    }
-//
-    
-    
+    //Check the fopen result
     if (file == NULL)
-    /*Check the fopen result*/
     {
         printf("Invalid Input Format\n");
-        return 0;
+        return 1;
     }
     
-    if (NULL != file)//Check for empty
+    if (NULL != file)
+    //Check for empty
     {
         fseek (file, 0, SEEK_END);
-        long size = ftell(file);
+        int size = ftell(file);
         
         if (0 == size)
         {
             printf("Invalid Input Format\n");
-            return 0;
+            return 1;
         }
         fseek(file, 0, SEEK_SET);
     }
@@ -124,7 +119,7 @@ int main(int argc, char ** argv) {
     
     char line[1024];/*the buffer size doesn't matter here */
     int readName = 1;
-    int readLine = 20000;
+    int readLine = 10000;
     int count = 0;
     int namePos = -1;
     int curSize = 0;
@@ -134,8 +129,9 @@ int main(int argc, char ** argv) {
     
     while (fgets(line, sizeof(line), file))
     {
+        /* note that fgets don't strip the terminating \n, checking its
+         presence would allow to handle lines longer that sizeof(line) */
         if(count < readName)
-        /*try to find "name" in first row*/
         {
             
             int nameCount = 0;
@@ -143,10 +139,14 @@ int main(int argc, char ** argv) {
             ch = strtok_single(line, ",");
             while (ch != NULL)
             {
+                //printf("%s\n", *ch ? ch : "<empty>");
+//                char *ch1;
+//                ch1 = ch + strlen(ch) - 1;
                 
-                if(strlen(ch) >= 1 && !strcmp(ch + strlen(ch) - 1, "\n"))//handle last word in a line
+                if(strlen(ch) >= 1 && !strcmp(ch + strlen(ch) - 1, "\n"))
+                {
                     ch = strtok_single(ch, "\n");
-                
+                }
                 
                 blockCount++;
                 if(strcmp("\"name\"", ch) == 0)
@@ -163,7 +163,7 @@ int main(int argc, char ** argv) {
             if(namePos == -1)//Can't find col NAME in the first row of a csv
             {
                 printf("Invalid Input Format\n");
-                return 0;
+                return 1;
             }
             
             count++;
@@ -176,6 +176,7 @@ int main(int argc, char ** argv) {
             int curBlockCount = 0;
             while (ch != NULL)
             {
+                //printf("%s\n", *ch ? ch : "<empty>");
                 
                 if(strlen(ch) >= 1 && !strcmp(ch + strlen(ch) - 1, "\n"))
                 {
@@ -185,6 +186,7 @@ int main(int argc, char ** argv) {
                 curBlockCount++;
                 if(temp==namePos)
                 {
+//                  printf("%s\n", *ch ? ch : "<empty>");
                     int flag = 0;// flag indicates if we need to dynamically allocate a new string in our struct map
                     
                     for(int i =0; i < curSize; i++)
@@ -212,7 +214,7 @@ int main(int argc, char ** argv) {
             if(curBlockCount!=blockCount)// Invalid line
             {
                 printf("Invalid Input Format\n");
-                return 0;
+                return 1;
             }
             count++;
         }
